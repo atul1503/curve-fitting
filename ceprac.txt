@@ -1,0 +1,42 @@
+{$lua}
+if syntaxcheck then return end
+
+[ENABLE]
+
+local mul=1+3e-2
+local up=70
+local down=35
+
+
+hk1=createHotkey(function()
+t=getAddressList()
+x=t.getMemoryRecord(3)
+y=t.getMemoryRecord(4)
+r=((x^2)+(y^2))^0.5
+
+if r<down then
+ratio=down/r
+x.Value=x.Value*ratio
+y.Value=y.Value*ratio
+----
+
+elseif r>up then
+ratio=up/r
+x.Value=x.Value*ratio
+y.Value=y.Value*ratio
+----
+
+else
+x.Value=x.Value*mul
+y.Value=y.Value*mul
+----
+
+end  
+
+
+
+end,0x26)
+
+
+[DISABLE]
+hk1.destroy()
