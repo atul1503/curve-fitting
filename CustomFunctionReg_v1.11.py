@@ -1,69 +1,36 @@
 from math import *
-from winsound import Beep as beep
-import pyttsx3 as tts
 
 
 weights=2
 
-
 def custom(x,w):
-    return w[0]*x+w[1]
-
-
-
-freq=900
-dur=900
-engine=tts.init()
-
+    return w[0]*x+w[1]    
     
 def ActualCall():
-    #d=Damping Coefficient;for loading previous results,use the previous d for proper resumption.
+    #d=Damping Coefficient
     #maxe=Max Error after which the search stops
     #it=Iterations
     #lookup=Lookup multiplier
     #interval=Save interval iteration number
     #load=Load params from file
-    #signChangeStop=Whether to stop when error sign changes.
-    #writeToAnyFile=Whether to write weights,errors to any file(it can be backup,parameters or signChangeSnapshot)
-    #speed=whether the damping coeffcient should increase to maintain speed or not.
-    #accelerator=multiplier at which d will increase if the error slope slows down while optimization.
-    #slowIndicator=if current error is more than slowIndicator*previousError then error slope is slow. 
     
-    d=2.463896498179377e-07
-    fileName='g.txt'
+    d=1e-20
+    fileName='output.csv'
     it=1e7
     lookup=1
     interval=10
-    maxe=1e-7
-    speed=1
-    accelerator=1+1e-2
-    slowIndicator=1-1e-2
-    signChangeStop=1
-    writeToAnyFile=1
-    load=1
+    maxe=1e3
+    load=0
     
     
     data,attr=readData(fileName)
     print()
-    return LinearRegressor(data,d,maxe,it,lookup,interval,load,speed,signChangeStop,writeToAnyFile,accelerator,slowIndicator)
+    return LinearRegressor(data,d,maxe,it,lookup,interval,load)
     
 
-
-def signCheck(x,y):
-    if x>0 and y>0:
-        return 1
-    elif x<0 and y<0:
-        return 1
-    else:
-        return 0
-            
-
-
-
-
-def speedify(d,e,pe,acc,slowIndicator):
-    if e/(pe*slowIndicator)>1 and abs(e)<=abs(pe) and signCheck(e,pe):
-        return d*acc
+def speedify(d,e,pe):
+    if abs((e-pe)/pe)<0.01:
+        return d*1.1
     return d
 
     
@@ -106,8 +73,6 @@ def direction(y,x,lookup,d,w,k):
     return final
     
 
-                
-                
 
 
 
@@ -116,13 +81,13 @@ def direction(y,x,lookup,d,w,k):
 
 
 
-def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,signChangeStop=1,writeToAnyFile=1,acc=1.01,slowIndicator=0.99):
-    w=[0]*weights
+
+def LinearRegressor(data,d,maxe,it,lookup,interval,load):
+    w=[0.01]*weights
     mvp=0
     flag=0
     e=1e+100
     first=0
-    second=0
     backup=1e+101
     if load:
         f=open('parameters.txt','r')
@@ -133,7 +98,7 @@ def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,sig
     i=0
     i=int(i)
     while i<it and abs(e)>maxe:
-        if int(i)%interval==0 and int(i)!=0 and writeToAnyFile:
+        if int(i)%interval==0 and int(i)!=0:
             f=open('parameters.txt','w')
             for j in w:
                 f.write(str(j)+' ')
@@ -146,40 +111,10 @@ def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,sig
                 g.write('\n'+'Error='+str(e)+' and '+'Damping Coefficient='+str(d)+' at iteration='+str(i)+'\n')
                 backup=float(abs(e))
                 g.close()
-            if signChangeStop:
-                if second and signCheck(prevE,e)==0:
-                    g=open('parameters.txt','w')
-                    for j in prevW:
-                        g.write(str(j)+' ')
-                    g.write('\n'+'Error='+str(prevE)+' and '+'Damping Coefficient='+str(prevD)+' at iteration='+str(i)+'\n')
-                    g.close()
-                    g=open('signChangeSnapshot.txt','w')
-                    for j in prevW:
-                        g.write(str(j)+' ')
-                    g.write('\n'+'Error='+str(prevE)+' and '+'Damping Coefficient='+str(prevD)+' at iteration='+str(i)+'\n')
-                    g.close()
-                    d=prevD
-                    w=[i for i in prevW]
-                    acc=int(acc)+(acc-int(acc))/10
-                    beep(freq,dur)
-                    print('Error sign changed! Snapshot saved to snapshot file.Go check it out!')
-                    
-                second=1
-                prevE=float(e)
-                prevD=float(d)
-                prevW=[i for i in w]
-                
-        if int(i)%interval==0 and int(i)!=0:
-            print('Error=',e,' and d=',d)
-            if speed:
-                if first:
-                    d=speedify(d,e,pe,acc,slowIndicator)
-                first=1
-                pe=float(e)
-                
-            
-            
-            
+        if first:
+            d=speedify(d,abs(e),dbackup)
+        first=1
+        dbackup=float(abs(e))
         
             
             
@@ -237,9 +172,6 @@ def main():
     print('The best fitted function coefficients are: ',end='')
     print(*wt)
     print('With error :',e)
-    beep(freq,dur)
-    engine.say('Run was successful Error is'+str(e))
-    engine.runAndWait()
     input()
     
     

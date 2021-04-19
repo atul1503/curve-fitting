@@ -1,20 +1,10 @@
 from math import *
-from winsound import Beep as beep
-import pyttsx3 as tts
 
 
 weights=2
 
-
 def custom(x,w):
     return w[0]*x+w[1]
-
-
-
-freq=900
-dur=900
-engine=tts.init()
-
     
 def ActualCall():
     #d=Damping Coefficient;for loading previous results,use the previous d for proper resumption.
@@ -29,14 +19,14 @@ def ActualCall():
     #accelerator=multiplier at which d will increase if the error slope slows down while optimization.
     #slowIndicator=if current error is more than slowIndicator*previousError then error slope is slow. 
     
-    d=2.463896498179377e-07
-    fileName='g.txt'
+    d=2.45e-7
+    fileName='tcs.txt'
     it=1e7
     lookup=1
     interval=10
-    maxe=1e-7
+    maxe=2
     speed=1
-    accelerator=1+1e-2
+    accelerator=1+1e-6
     slowIndicator=1-1e-2
     signChangeStop=1
     writeToAnyFile=1
@@ -56,8 +46,6 @@ def signCheck(x,y):
         return 1
     else:
         return 0
-            
-
 
 
 
@@ -117,7 +105,7 @@ def direction(y,x,lookup,d,w,k):
 
 
 def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,signChangeStop=1,writeToAnyFile=1,acc=1.01,slowIndicator=0.99):
-    w=[0]*weights
+    w=[0.01]*weights
     mvp=0
     flag=0
     e=1e+100
@@ -133,6 +121,14 @@ def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,sig
     i=0
     i=int(i)
     while i<it and abs(e)>maxe:
+        if int(i)%interval==0 and int(i)!=0:
+            print('Error=',e,' and d=',d)
+            if speed:
+                if first:
+                    d=speedify(d,e,pe,acc,slowIndicator)
+                first=1
+                pe=float(e)
+                
         if int(i)%interval==0 and int(i)!=0 and writeToAnyFile:
             f=open('parameters.txt','w')
             for j in w:
@@ -151,32 +147,19 @@ def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,sig
                     g=open('parameters.txt','w')
                     for j in prevW:
                         g.write(str(j)+' ')
-                    g.write('\n'+'Error='+str(prevE)+' and '+'Damping Coefficient='+str(prevD)+' at iteration='+str(i)+'\n')
+                    g.write('\n'+'Error='+str(prevE)+' and '+'Damping Coefficient='+str(d)+' at iteration='+str(i)+'\n')
                     g.close()
                     g=open('signChangeSnapshot.txt','w')
                     for j in prevW:
                         g.write(str(j)+' ')
-                    g.write('\n'+'Error='+str(prevE)+' and '+'Damping Coefficient='+str(prevD)+' at iteration='+str(i)+'\n')
+                    g.write('\n'+'Error='+str(prevE)+' and '+'Damping Coefficient='+str(d)+' at iteration='+str(i)+'\n')
                     g.close()
-                    d=prevD
-                    w=[i for i in prevW]
-                    acc=int(acc)+(acc-int(acc))/10
-                    beep(freq,dur)
-                    print('Error sign changed! Snapshot saved to snapshot file.Go check it out!')
-                    
+                    print('Error sign changed! Snapshot saved to file.Go check it out!')
+                    input()
+                    exit()
                 second=1
                 prevE=float(e)
-                prevD=float(d)
                 prevW=[i for i in w]
-                
-        if int(i)%interval==0 and int(i)!=0:
-            print('Error=',e,' and d=',d)
-            if speed:
-                if first:
-                    d=speedify(d,e,pe,acc,slowIndicator)
-                first=1
-                pe=float(e)
-                
             
             
             
@@ -237,9 +220,6 @@ def main():
     print('The best fitted function coefficients are: ',end='')
     print(*wt)
     print('With error :',e)
-    beep(freq,dur)
-    engine.say('Run was successful Error is'+str(e))
-    engine.runAndWait()
     input()
     
     

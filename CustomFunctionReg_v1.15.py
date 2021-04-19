@@ -3,11 +3,11 @@ from winsound import Beep as beep
 import pyttsx3 as tts
 
 
-weights=4
+weights=2
 
 
 def custom(x,w):
-    return w[0]*(x**3)+w[1]*(x**2)+w[2]*x+w[3]
+    return w[1]*x+w[0]
 
 freq=900
 dur=900
@@ -28,10 +28,10 @@ def ActualCall():
     #slowIndicator=if current error is more than slowIndicator*previousError then error slope is slow. 
     
     d=1.9e-7
-    fileName='tcs.txt'
+    fileName='g.txt'
     it=1e7
     lookup=1
-    interval=10
+    interval=1e3
     maxe=1e-2
     speed=1
     accelerator=1+1e-3
