@@ -32,7 +32,7 @@ def ActualCall():
     fileName='g.txt'
     it=1e7
     lookup=1
-    interval=1e3
+    interval=10
     maxe=1e-7
     speed=1
     accelerator=1+1e-2
