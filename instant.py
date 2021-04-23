@@ -28,7 +28,7 @@ def ActualCall():
     #accelerator=multiplier at which d will increase if the error slope slows down while optimization.
     #slowIndicator=if current error is more than slowIndicator*previousError then error slope is slow. 
     
-    d=2.463896498179377e-07
+    d=0.02
     fileName='g.txt'
     it=1e7
     lookup=1
