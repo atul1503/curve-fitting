@@ -3,11 +3,10 @@ from winsound import Beep as beep
 import pyttsx3 as tts
 
 
-weights=2
-
+# here x and w both are arrays then use notation like x[0] and w[5].
 
 def custom(x,w):
-    return w[0]*x+w[1]
+    return w[0]*x[0]+w[1]*x[1]+w[2]
 
 
 
@@ -33,8 +32,8 @@ def ActualCall():
     fileName='g.txt'
     it=1e7
     lookup=1
-    interval=10
-    maxe=1e-14
+    interval=1e3
+    maxe=1e-7
     speed=1
     accelerator=1+1e-2
     slowIndicator=1-1e-2
@@ -43,9 +42,9 @@ def ActualCall():
     load=0
     
     
-    data,attr=readData(fileName)
+    data,wtlen=readData(fileName)
     print()
-    return LinearRegressor(data,d,maxe,it,lookup,interval,load,speed,signChangeStop,writeToAnyFile,accelerator,slowIndicator)
+    return LinearRegressor(data,wtlen,d,maxe,it,lookup,interval,load,speed,signChangeStop,writeToAnyFile,accelerator,slowIndicator)
     
 
 
@@ -116,8 +115,8 @@ def direction(y,x,lookup,d,w,k):
 
 
 
-def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,signChangeStop=1,writeToAnyFile=1,acc=1.01,slowIndicator=0.99):
-    w=[0]*weights
+def LinearRegressor(data,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,signChangeStop=1,writeToAnyFile=1,acc=1.01,slowIndicator=0.99):
+    w=[0]*wtlen
     mvp=0
     flag=0
     e=1e+100
@@ -188,8 +187,10 @@ def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,sig
         
         e=0
         j=0
+        x=[0]*(wtlen-1)
         while j<len(data):
-            x=data[j][mvp]
+            for xv in range(wtlen-1):
+                x[xv]=data[j][xv]
             y=data[j][-1]
             pred=custom(x,w)
             e=e+(y-pred)
@@ -216,9 +217,9 @@ def LinearRegressor(data,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,sig
 def readData(fileName):
     f=open(fileName,'r')
     data=[]
-    attr=f.readline().split(',')
-    attr=attr[:-1]
+    f.readline()
     temp=f.readline()
+    wtlen=len(temp.split(','))
     while 'eof' not in temp:
         temp=temp[:-1]
         ttemp=temp.split(',')
@@ -229,13 +230,14 @@ def readData(fileName):
             data[i][j]=float(data[i][j])
     
     f.close()
-    return data,attr    
+    return data,wtlen    
     
 def main():
     wt,e=ActualCall()
     print('\n\n')
-    print('The best fitted function coefficients are: ',end='')
-    print(*wt)
+    print('The best fitted function coefficients are: ')
+    for i in range(len(wt)):
+        print('w[',i,'] : ',wt[i])
     print('With error :',e)
     beep(freq,dur)
     engine.say('Run was successful Error is'+str(e))
