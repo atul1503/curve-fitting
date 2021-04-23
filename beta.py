@@ -32,7 +32,7 @@ def ActualCall():
     fileName='g.txt'
     it=1e7
     lookup=1
-    interval=1e3
+    interval=10
     maxe=1e-7
     speed=1
     accelerator=1+1e-2
@@ -208,6 +208,8 @@ def LinearRegressor(data,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed
         g.write(str(j)+' ')
     g.write('\n'+'Error='+str(e)+' and '+'Damping Coefficient='+str(d)+' at iteration='+str(i)+'\n')
     g.close()
+    data=0
+    d=0
     return w,e
     
     
