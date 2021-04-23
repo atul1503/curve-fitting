@@ -3,11 +3,11 @@ from winsound import Beep as beep
 import pyttsx3 as tts
 
 
-weights=3
+weights=2
 
 
 def custom(x,w):
-    return w[0]*(x**2)+w[1]*x+w[2]
+    return w[0]*x+w[1]
 
 
 
@@ -37,10 +37,10 @@ def ActualCall():
     maxe=1e-7
     speed=1
     accelerator=1+1e-2
-    slowIndicator=1-1e-1
+    slowIndicator=1-1e-2
     signChangeStop=1
     writeToAnyFile=1
-    load=0
+    load=1
     
     
     data,attr=readData(fileName)
