@@ -195,7 +195,7 @@ def LinearRegressor(data,target,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=
                     x.append(data[j][xv])
                 elif target<0 and xv!=wtlen+target:
                     x.append(data[j][xv])
-            print(x)
+                    
             y=data[j][target]
             pred=custom(x,w)
             e=e+(y-pred)
