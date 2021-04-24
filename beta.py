@@ -29,13 +29,13 @@ def ActualCall():
     #accelerator=multiplier at which d will increase if the error slope slows down while optimization.
     #slowIndicator=if current error is more than slowIndicator*previousError then error slope is slow. 
     
-    d=2.463896498179377e-07
+    d=1e-14
     fileName='g.txt'
-    targetIndex=-1
-    it=1e7
+    targetIndex=0
+    it=3
     lookup=1
     interval=10
-    maxe=1e-7
+    maxe=1e-13
     speed=1
     accelerator=1+1e-2
     slowIndicator=1-1e-2
@@ -188,10 +188,14 @@ def LinearRegressor(data,target,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=
         
         e=0
         j=0
-        x=[0]*(wtlen-1)
         while j<len(data):
-            for xv in range(wtlen-1):
-                x[xv]=data[j][xv]
+            x=[]
+            for xv in range(wtlen):
+                if xv!=target and target>=0:
+                    x.append(data[j][xv])
+                elif target<0 and xv!=wtlen+target:
+                    x.append(data[j][xv])
+            print(x)
             y=data[j][target]
             pred=custom(x,w)
             e=e+(y-pred)
