@@ -31,8 +31,8 @@ def ActualCall():
     
     d=1e-14
     fileName='g.txt'
-    targetIndex=0
-    it=3
+    targetIndex=-1
+    it=1e7
     lookup=1
     interval=10
     maxe=1e-13

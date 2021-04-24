@@ -19,6 +19,7 @@ def ActualCall():
     #d=Damping Coefficient;for loading previous results,use the previous d for proper resumption.
     #maxe=Max Error after which the search stops
     #it=Iterations
+    #targetIndex=0-indexed column no. of target column
     #lookup=Lookup multiplier
     #interval=Save interval iteration number
     #load=Load params from file
@@ -30,10 +31,11 @@ def ActualCall():
     
     d=1e-14
     fileName='g.txt'
-    it=3
+    targetIndex=-1
+    it=1e7
     lookup=1
     interval=10
-    maxe=1e-7
+    maxe=1e-13
     speed=1
     accelerator=1+1e-2
     slowIndicator=1-1e-2
@@ -44,7 +46,7 @@ def ActualCall():
     
     data,wtlen=readData(fileName)
     print()
-    return LinearRegressor(data,wtlen,d,maxe,it,lookup,interval,load,speed,signChangeStop,writeToAnyFile,accelerator,slowIndicator)
+    return LinearRegressor(data,targetIndex,wtlen,d,maxe,it,lookup,interval,load,speed,signChangeStop,writeToAnyFile,accelerator,slowIndicator)
     
 
 
@@ -115,9 +117,8 @@ def direction(y,x,lookup,d,w,k):
 
 
 
-def LinearRegressor(data,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,signChangeStop=1,writeToAnyFile=1,acc=1.01,slowIndicator=0.99):
+def LinearRegressor(data,target,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed=0,signChangeStop=1,writeToAnyFile=1,acc=1.01,slowIndicator=0.99):
     w=[0]*wtlen
-    mvp=0
     flag=0
     e=1e+100
     first=0
@@ -187,12 +188,15 @@ def LinearRegressor(data,wtlen,d,maxe,it=1e7,lookup=1,interval=1000,load=0,speed
         
         e=0
         j=0
-        x=[0]*(wtlen-1)
         while j<len(data):
-            for xv in range(wtlen-1):
-                x[xv]=data[j][xv]
+            x=[]
+            for xv in range(wtlen):
+                if xv!=target and target>=0:
+                    x.append(data[j][xv])
+                elif target<0 and xv!=wtlen+target:
+                    x.append(data[j][xv])
             print(x)
-            y=data[j][-1]
+            y=data[j][target]
             pred=custom(x,w)
             e=e+(y-pred)
             k=0
